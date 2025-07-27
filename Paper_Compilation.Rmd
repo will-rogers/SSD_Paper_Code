@@ -1661,7 +1661,7 @@ plot(terra::rast(suitability[c(1,21,46,201,221,246,451,471,496)]))
 ### Simulations run on Yale GRACE High Performance Computing Cluster - scripts in repository
 ```{r}
 ssd <- paste0("Simulations/output_ssds/", list.files("Simulations/output_ssds"))
-ssd <- ssd[order(as.numeric(str_remove(str_remove(ssd, "output_ssds/ssds_"), ".rds")))]
+ssd <- ssd[order(as.numeric(str_remove(str_remove(ssd, "Simulations/output_ssds/ssds_"), ".rds")))]
 ssd <- lapply(ssd, readRDS)
 
 ssf <- paste0("Simulations/output_ssf_maps/", list.files("Simulations/output_ssf_maps"))
