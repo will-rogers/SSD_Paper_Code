@@ -1,0 +1,5 @@
+"","effect","component","group","term","estimate","std.error","statistic","p.value"
+"1","fixed","cond",NA,"(Intercept)",5.34246527061975,0.0594920924758331,89.8012668286961,0
+"2","fixed","cond",NA,"SSF.s",0.0685487094920122,0.00667037550562868,10.2765892915876,8.98511388663955e-25
+"3","ran_pars","cond","t","sd__(Intercept)",0.317929529434984,NA,NA,NA
+"4","ran_pars","cond","animal","sd__(Intercept)",4.5010768748049e-05,NA,NA,NA
