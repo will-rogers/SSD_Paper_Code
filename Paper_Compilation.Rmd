@@ -1,5 +1,5 @@
 ---
-title: "S3: Paper Code Compilation"
+title: "Paper Code Compilation"
 author: "Will Rogers, Scott Yanco, Walter Jetz"
 date: "`r Sys.Date()`"
 output: 
@@ -55,7 +55,7 @@ library(bench)
 ## Showing large matrix decompositions are possible
 ```{r fig.width = 7, fig.height=4}
 # about the max my M1 2021 Mac Pro 16GB Ram can handle
-# mark(d <- eigs(t(matrix(1/(18000^2), 18000, 18000)), 1))
+mark(d <- eigs(t(matrix(1/(18000^2), 18000, 18000)), 1))
 gc()
 
 # so the maximum non-zero elements I can handle is...
@@ -866,8 +866,8 @@ lines(locations, col = "black", lwd = 0.25) # plot track
 #### More intense sampling that converges
 ```{r}
 set.seed(100)
-# pop.locations <- simulate_movements(sim.sur, lambda = 1, kappa = 1, step_no = 5E5, teleport = 1E3)
-# saveRDS(pop.locations, "Simulations/pop.locations.demo.RDS")
+pop.locations <- simulate_movements(sim.sur, lambda = 1, kappa = 1, step_no = 5E5, teleport = 1E3)
+saveRDS(pop.locations, "Simulations/pop.locations.demo.RDS")
 pop.locations <- readRDS("Simulations/pop.locations.demo.RDS")
 
 # Plot the layer as a raster
@@ -880,12 +880,13 @@ lines(as.polygons(hab50, dissolve = T), col = "grey50") # highlight the top 10% 
 lines(pop.locations, col = "black", lwd = 0.01) # plot track
 
 spts <- as.data.frame(sim.sur, xy = TRUE)
-merged <- merge(spts, as.data.frame(pop.locations), by.x = c("x", "y"), by.y = c("V1","V2"), all.x = T) 
+merged <- merge(spts, as.data.frame(pop.locations), by.x = c("x", "y"), by.y = c("V1","V2")) 
 merged <- merged %>% 
   group_by(x,y) %>% 
   tally() 
 
 pop.use <- rast(merged)
+values(pop.use) <- ifelse(is.na(values(pop.use)), 0, values(pop.use))
 plot(pop.use)
 ```
 
@@ -1318,18 +1319,18 @@ issf.fit2 <- fit_issf(ssf.dat. %>%
 ### Comparing ABM
 
 ```{r}
-# packed.sim <- wrap(sim)
-# 
-# abm.example <- list(track = ssf.dat. %>% 
-#                        filter(!is.na(z.1),
-#                               !is.na(z.1),
-#                               !is.na(z.3),
-#                               !is.na(z.4),
-#                               !is.na(ta_)) , 
-#                     model = issf.fit2, 
-#                     raster = (packed.sim))
-# 
-# saveRDS(abm.example, "Simulations/abm.example.RDS")
+packed.sim <- wrap(sim)
+
+abm.example <- list(track = ssf.dat. %>%
+                       filter(!is.na(z.1),
+                              !is.na(z.1),
+                              !is.na(z.3),
+                              !is.na(z.4),
+                              !is.na(ta_)) ,
+                    model = issf.fit2,
+                    raster = (packed.sim))
+
+saveRDS(abm.example, "Simulations/abm.example.RDS")
 
 raster_files <- list.files("Simulations/output_abm_example/", full.names = TRUE)
 length(raster_files)
@@ -1463,27 +1464,27 @@ convergences.mean.total <- list(
 sample.size <- round((seq(1, sqrt(10000), length.out = 250)^2))
 
 # array <- matrix(NA, ncol = 10, nrow = length(sample.size), dimnames = list(sample.size, c(10, 35, 48, 58, 67, 75, 82, 88, 94, 100)))
-# for(i in 4:10){
-#   
+# for(i in 1:10){
+# 
 #   pb <- progress_bar$new(total = length(sample.size), format = "  sampling [:bar] :percent eta: :eta")
 # 
 #   for(j in 1:length(sample.size)){
 # 
 #     taken <- mean(subset(convergences.vs.size[[i]], 1:sample.size[j]))
-#     
+# 
 #     array[j,i] <- sum(sqrt(values(taken) * values(convergences.mean.total[[i]])))
 #     pb$tick()
-#     
+# 
 #     }
-#   
+# 
 #   print(paste('i =',i))
-#   
+# 
 # }
 # 
 # saveRDS(array, "Simulations/abm_size_bhs.RDS")
 array <- readRDS("Simulations/abm_size_bhs.RDS")
 
-# as.data.frame.table(array) %>% 
+# as.data.frame.table(array) %>%
 #   ggplot(aes(x = as.numeric(Var1), y = Freq, color = Var2, group = paste(Var2))) +
 #   geom_path() +
 #   scale_x_log10() +
@@ -1496,8 +1497,8 @@ size.df$sample <- sample.size[size.df$Var1]
 size.df$size <- as.numeric(as.character(size.df$Var2))^2
 
 
-# size.df %>% 
-#   filter(sample > 1000) %>% 
+# size.df %>%
+#   filter(sample > 1000) %>%
 #   ggplot(aes(x = sample, y = Freq, color = Var2, group = paste(Var2))) +
 #   geom_path() +
 #   scale_x_log10() +
@@ -1576,7 +1577,7 @@ c <- rbind(bha.99, bha.999, bha.9999, bha.99999) %>%
 
 c
 
-ggsave("Plots/BHAvsMapSize.svg", width = 7, height = 4)
+ggsave("Plots/BHAvsMapSize2.svg", width = 7, height = 4)
 
 gc()
 ```
@@ -1655,7 +1656,7 @@ suitability <- lapply(1:500, function(x){
 names(suitability) <- paste0(rep(paste0("ID",1:10," scale = "), each = 50), rep(rep(c(0.001, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 0.95), each = 5), 10))
 
 plot(terra::rast(suitability[c(1,21,46,201,221,246,451,471,496)]))
-# saveRDS(lapply(sur.val, wrap), "Simulations/sur.val.packed.RDS")
+saveRDS(lapply(sur.val, wrap), "Simulations/sur.val.packed.RDS")
 ```
 
 ### Simulations run on Yale GRACE High Performance Computing Cluster - scripts in repository
@@ -1806,7 +1807,7 @@ estimates <- estimates %>% mutate(
     group %% 50 %in% seq(2,500, by = 5) ~ 2,
     group %% 50 %in% seq(3,500, by = 5) ~ 3,
     group %% 50 %in% seq(4,500, by = 5) ~ 4,
-    group %% 50 %in% seq(5,500, by = 5) ~ 5,
+    group %% 50 %in% seq(0,500, by = 5) ~ 5,
   ),
   true.effect = case_when(
     term == "z.1" ~ 0.05 * animal,
@@ -1815,6 +1816,7 @@ estimates <- estimates %>% mutate(
     term == "z.4" ~ -0.05 * animal
   )
 )
+
 ```
 
 #### Estimate error
@@ -3162,7 +3164,7 @@ rast.reddeer.abm <- sh_forest
 reddeer.abm<- list(track = track.reddeer.abm, model = model.reddeer.abm, raster = wrap(rast.reddeer.abm))
 saveRDS(reddeer.abm, "Casestudies/reddeer.abm.RDS")
 
-abmpredictions.red <- rast("Casestudies/abm_compiled/final_red_1.tif")/1E5
+abmpredictions.red <- rast("Casestudies/abm_compiled/final_red_1.tif")
 
 plot(abmpredictions.red)
 ```
@@ -3430,115 +3432,6 @@ test.italy <- Focal %>% filter(!unique %in% train.italy$unique)
 # 
 # LC <- crop(Landclass, ext(c(range(Deer$x_, na.rm = T) + 3200*c(-1,1),range(Deer$y_, na.rm = T)+ 3200*c(-1,1))))
 # woods = 23:25
-# # spts <- coordinates(LC)
-# # spdf <- SpatialPoints(coords = spts, proj4string = CRS(sr))
-# # forest <- (LC %in% c(23:25))
-# # forest <- rasterToPolygons(forest, fun = function(x){x == 1}, dissolve = T)
-# # # forest.l <- as(forest, "SpatialLinesDataFrame")
-# # forest_distance <- rgeos::gDistance(forest, spdf, byid=TRUE)
-# # 
-# # open <- (LC %in% c(18,29))
-# # open <- rasterToPolygons(open, fun = function(x){x == 1}, dissolve = T)
-# # # forest.l <- as(forest, "SpatialLinesDataFrame")
-# # open_distance <- rgeos::gDistance(open, spdf, byid=TRUE)
-# # 
-# # farm <- (LC %in% c(12:17,19:22))
-# # farm <- rasterToPolygons(farm, fun = function(x){x == 1}, dissolve = T)
-# # # forest.l <- as(forest, "SpatialLinesDataFrame")
-# # farm_distance <- rgeos::gDistance(farm, spdf, byid=TRUE)
-# # 
-# # # nforest <- (!LC %in% c(23:25))
-# # # nforest <- rasterToPolygons(nforest, fun = function(x){x == 1}, dissolve = T)
-# # # # nforest.l <- as(nforest, "SpatialLinesDataFrame")
-# # # nforest_distance <- rgeos::gDistance(nforest, spdf, byid=TRUE)
-# # #
-# # # ForestDistance <- setValues(LC, ifelse(forest_distance[,1] == 0, nforest_distance[,1], forest_distance[,1]))
-# # 
-# # ForestDistance <- setValues(LC, forest_distance)
-# # OpenDistance <- setValues(LC, open_distance)
-# # FarmDistance <- setValues(LC, farm_distance)
-# # 
-# # Elevation <- aggregate(Elevation, 2)
-# # 
-# # Landclass <- projectRaster(from = Landclass, to = Elevation,
-# #                            method = "ngb",
-# #                            format = "raster",
-# #                            overwrite = TRUE) # interpolate forest cover
-# # ForestDistance <- projectRaster(from = ForestDistance, to = Elevation,
-# #                                 method = "bilinear",
-# #                                 format = "raster",
-# #                                 overwrite = TRUE) # interpolate forest cover
-# # OpenDistance <- projectRaster(from = OpenDistance, to = Elevation,
-# #                                 method = "bilinear",
-# #                                 format = "raster",
-# #                                 overwrite = TRUE) # interpolate forest cover
-# # FarmDistance <- projectRaster(from = FarmDistance, to = Elevation,
-# #                                 method = "bilinear",
-# #                                 format = "raster",
-# #                                 overwrite = TRUE) # interpolate forest cover
-# # 
-# # rstack <- stack(Landclass, Elevation, ForestDistance, OpenDistance, FarmDistance)
-# # rstack$TRI <- terrain(rstack$ItalyElevation, opt = "TRI")
-# # rstack$Slope <- terrain(rstack$ItalyElevation, opt = "slope")
-# # rstack$Aspect <- cos((terrain(rstack$ItalyElevation, opt = "aspect", unit = "degrees")-35)/360)
-# # 
-# # names(rstack) <- c("Land", "Elev", "ForestD", "OpenD", "FarmD", "TRI", "Slope", "Aspect")
-# # 
-# # rstack <- crop(rstack, extent(c(range(Deer$x_, na.rm = T) + 1500*c(-1,1),range(Deer$y_, na.rm = T)+ 1500*c(-1,1))))
-# # 
-# # rstack$Artificial <- (rstack$Land %in% c(1:11))
-# # rstack$Farm <- (rstack$Land %in% c(12:17,19:22))
-# # rstack$Open <- (rstack$Land %in% c(18,29))
-# # rstack$Forest <- (rstack$Land %in% c(23:25))
-# # 
-# # plot(sqrt(rstack$OpenD))
-# # lines(Deer$x_, Deer$y_)
-# # saveRDS(rstack, "ItalyCov.RDS")
-# # rstack.italy2<- readRDS("ItalyCov.RDS")
-# # rstack.italy2 <- rast(rstack.italy2)
-# # 
-# # rstack.italy2$Forest.true <- setValues(rstack.italy2$Forest, ifelse(values(rstack.italy2$Forest) == 1, 1, NA))
-# # rstack.italy2$Forest.false <- setValues(rstack.italy2$Forest, ifelse(values(rstack.italy2$Forest) == 0, 1, NA))
-# # 
-# # rstack.italy2$Forest.true <- distance(rstack.italy2$Forest.true)
-# # rstack.italy2$Forest.false <- distance(rstack.italy2$Forest.false)
-# # rstack.italy2$Forest.edge <- max(c(rstack.italy2$Forest.true,rstack.italy2$Forest.false))
-# # 
-# # 
-# # distance()
-# # plot(rstack.italy2$Forest)
-# # 
-# # 
-# # rstack.italy2 <- rast(rstack.italy2)
-# # par(mfrow = c(2,2))
-# # plot(sqrt(rstack.italy$ForestD))
-# # plot((rstack.italy$Slope))
-# # plot(sqrt(rstack.italy$ForestD))
-# # 
-# # i=1
-# # i = i+1
-# # plot(LC == 23)
-# # 
-# # train.italy %>% ungroup() %>% dplyr::select(-id) %>% as_track() %>% 
-# #   extract_covariates(LC) %>% 
-# #   with(table(ItalyLandcover))
-# # 
-# # i=1
-# # i = i+1
-# # plot(LC == i)
-# # points(train.italy$x_, train.italy$y_, col = "black", pch = ".")
-# # points(test.italy$x_, test.italy$y_, col = "red", pch = ".")
-# # 
-# # plot((rstack.italy$Slope))
-# # points(train.italy$x_, train.italy$y_, col = "black", pch = ".")
-# # points(test.italy$x_, test.italy$y_, col = "red", pch = ".")
-# # 
-# # 18 # liked - pasture
-# # 23 # liked kinda - broadleaf forest
-# # 24 # disliked - conifer
-# # 25 # disliked - mixed
-# # 29 # disliked - scrub
-# # 32 # disliked - sparse
 # 
 # Other <- as.numeric(!LC %in% c(18,32,29,23,24,25))
 # Open <- as.numeric(LC %in% c(18,32,29))
@@ -3744,10 +3637,8 @@ saveRDS(roedeer.abm, "Casestudies/roedeer.abm.RDS")
 abmpredictions.roe <- c(rast("Casestudies/abm_compiled/final_roe_1.tif"),rast("Casestudies/abm_compiled/final_roe_2.tif"),rast("Casestudies/abm_compiled/final_roe_3.tif"),rast("Casestudies/abm_compiled/final_roe_4.tif"),rast("Casestudies/abm_compiled/final_roe_5.tif"))
 names(abmpredictions.roe) <- names(rsfpredictions.deer)
 
-abm.raster.roedeer <- (abmpredictions.roe)/1E5
+abm.raster.roedeer <- (abmpredictions.roe)
 plot(abm.raster.roedeer)
-
-roedeer.abm[[2]][[4]]
 ```
 
 
@@ -4182,9 +4073,9 @@ b <- fisher.nonfocal %>%
 
 a. <- rbind(a, b) %>%
   ggplot(aes(y = DistForest, fill = group, group = id)) +
-  geom_density(alpha = 0.5, color = NA) +
+  geom_density(alpha = 0.5, color = NA, bw = 0.1) +
   facet_grid(~group) +
-  scale_y_log10() +
+  scale_y_sqrt() +
   theme_classic() +
   labs(y = "Distance to Forest (km)")
 
@@ -4205,9 +4096,9 @@ c. <- rbind(a, b) %>%
 
 d. <- rbind(a, b) %>%
   ggplot(aes(y = PopDen, fill = group, group = id)) +
-  geom_density(alpha = 0.5, color = NA) +
+  geom_density(alpha = 0.5, color = NA, bw = 2) +
   facet_grid(~group) +
-  scale_y_log10() +
+  scale_y_sqrt() +
   theme_classic() +
   labs(y = "Human Census Density")
 
@@ -4220,10 +4111,10 @@ Defining the prediction landscapes and some preliminary plotting to verify.
 focal.extent <- ext(c(range(fisher.focal$x_, na.rm = T) + 1000*c(-1,1),range(fisher.focal$y_, na.rm = T)+ 1000*c(-1,1)))
 non.focal.extent <- ext(c(range(fisher.nonfocal$x_, na.rm = T)+ 1000*c(-1,1),range(fisher.nonfocal$y_, na.rm = T)+ 1000*c(-1,1)))
 
-focal <- rstack.focal
+focal <- rast(rstack.focal)
 focal <- crop(focal, ext(focal.extent))
 
-nonfocal <- rstack.nonfocal
+nonfocal <- rast(rstack.nonfocal)
 
 nonfocal <- crop(nonfocal, ext(non.focal.extent))
 
@@ -4255,10 +4146,11 @@ plot(nonfocal)
 
 Again, we are using map to contain the same pipeline as above.
 ```{r}
+set.seed(100)
 train.fisher %>%
   nest(data = -c("id")) %>%
   mutate(median = lapply(data, function(d) { round(as.numeric(median(diff(d$t_), na.rm = T), units = "mins"))})) %>% 
-  select(median) %>% 
+  dplyr::select(median) %>% 
   unnest()
 
 train.fisher.use <- train.fisher %>%
@@ -4510,8 +4402,8 @@ abmpredictions.fisher.nonfocal <- c(rast("Casestudies/abm_compiled/final_fnf_1.t
 names(abmpredictions.fisher) <- names(rsfpredictions)
 names(abmpredictions.fisher.nonfocal) <- names(rsfpredictions)
 
-values(abmpredictions.fisher) <- values(abmpredictions.fisher)/1E5
-values(abmpredictions.fisher.nonfocal) <- values(abmpredictions.fisher.nonfocal)/1E5
+values(abmpredictions.fisher) <- values(abmpredictions.fisher)
+values(abmpredictions.fisher.nonfocal) <- values(abmpredictions.fisher.nonfocal)
 
 plot(abmpredictions.fisher)
 plot(abmpredictions.fisher.nonfocal)
@@ -4579,6 +4471,7 @@ use.area.fisher %>%
 
 
 ```{r}
+set.seed(100)
 M1.in <- compare_spearman(train.fisher.use$data[[1]],
                        subset(focal.pred, seq(1, 28, by = 7)), iter)
 M1.id <- compare_spearman(test.fisher %>% filter(!is.na(x_), id == "M1", id != "M5") %>% make_track(x_,y_),
@@ -4954,17 +4847,17 @@ test.buffalo %>%
 We can also read in geospatial info, and alter it to suite reasonable info for species movements.
 ```{r}
 # growth <- rast("Casestudies/AvgNDVIRange_HydroYear_2000_2015.tif")
-# woody.cover <- rast("Casestudies/S1_A_VH_VV_mosaic_KNP_Area_no_nan_ranger_mosaic_woody_cover_S1_16_17_100m.tif") 
-#
+# woody.cover <- rast("S1_A_VH_VV_mosaic_KNP_Area_no_nan_ranger_mosaic_woody_cover_S1_16_17_100m.tif") from https://doi.org/10.4102/koedoe.v62i1.1621 
+# 
 # growth <- project(growth, crs(boundaries))
 # growth <- aggregate(growth, 2)
-#
+# 
 # woody.cover <- project(woody.cover, crs(boundaries))
-# woody.cover <- resample(woody.cover, ndvi, "average")
+# woody.cover <- resample(woody.cover, growth, "average")
 # 
 # cropped <- crop(growth, boundaries)
 # growth <- mask(cropped, boundaries)
-#
+# 
 # cropped <- crop(woody.cover, boundaries)
 # woody.cover <- mask(cropped, boundaries)
 # 
@@ -4980,8 +4873,8 @@ We can also read in geospatial info, and alter it to suite reasonable info for s
 # waterholes <- st_transform((waterholes), crs(boundaries))
 # dams <- st_transform((dams), crs(boundaries))
 # 
-# dist.waterhole <- terra::distance(ndvi, vect(waterholes))
-# dist.dams <- terra::distance(ndvi, vect(dams))
+# dist.waterhole <- terra::distance(growth, vect(waterholes))
+# dist.dams <- terra::distance(growth, vect(dams))
 # 
 # cropped <- crop(dist.waterhole, boundaries)
 # dist.waterhole <- mask(cropped, boundaries)
@@ -4996,14 +4889,11 @@ We can also read in geospatial info, and alter it to suite reasonable info for s
 # 
 # 
 # streams.v <- vect(streams)
-# water.3 <- terra::distance(ndvi, streams.v[streams$Str_order == 3,])
-# water.4 <- terra::distance(ndvi, streams.v[streams$Str_order == 4,])
-# water.5 <- terra::distance(ndvi, streams.v[streams$Str_order == 5,])
-# water.6 <- terra::distance(ndvi, streams.v[streams$Str_order == 6,])
-# water.7 <- terra::distance(ndvi, streams.v[streams$Str_order >= 7,])
-# 
-# rivers <- terra::distance(ndvi, vect(rivers))
-# 
+# water.3 <- terra::distance(growth, streams.v[streams$Str_order == 3,])
+# water.4 <- terra::distance(growth, streams.v[streams$Str_order == 4,])
+# water.5 <- terra::distance(growth, streams.v[streams$Str_order == 5,])
+# water.6 <- terra::distance(growth, streams.v[streams$Str_order == 6,])
+# water.7 <- terra::distance(growth, streams.v[streams$Str_order >= 7,])
 # 
 # water.7 <- min(c(water.7,dist.waterhole,dist.dams)) # all permanent water sources
 # 
@@ -5259,7 +5149,7 @@ saveRDS(buffalo.abm, "Casestudies/buffalo.abm.RDS")
 abmpredictions <- c(rast("Casestudies/abm_compiled/final_sum_b1.tif"),rast("Casestudies/abm_compiled/final_sum_b2.tif"),rast("Casestudies/abm_compiled/final_sum_b3.tif"),rast("Casestudies/abm_compiled/final_sum_b4.tif"),rast("Casestudies/abm_compiled/final_sum_b5.tif"),rast("Casestudies/abm_compiled/final_sum_b6.tif"))
 names(abmpredictions) <- names(rsfpredictions.buffalo)
 
-values(abmpredictions) <- values(abmpredictions)/1E5
+values(abmpredictions) <- values(abmpredictions)
 
 
 cropped <- crop(abmpredictions, boundaries)
@@ -6131,7 +6021,7 @@ convergence.case <- readRDS("Casestudies/store.convergence.case.RDS")
 
 
 system.size <- tibble(system = c("roe","red","fisher.focal","fisher.nonfocal","buffalo"),
-                       ncells = c(sum(!is.na(values(rast.reddeer.abm[[1]]))), 
+                       ncells = c(sum(!is.na(values(abmpredictions.red[[1]]))), 
                                   sum(!is.na(values(rast.roedeer.abm[[1]]))),
                                   sum(!is.na(values(focal[[1]]))),
                                   sum(!is.na(values(nonfocal[[1]]))),

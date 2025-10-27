@@ -17,6 +17,34 @@ for (i in 1:500) {
   writeRaster(combined, paste0("output_abm_sim/sim",i,".tif"), overwrite=T)
 }
 
+
+setwd("/gpfs/gibbs/project/ezenwa/wr254/movement")
+raster_dir <- paste0("output_abm_size/")
+
+files <- list.files(raster_dir, pattern = "\\.tif$", full.names = TRUE)
+
+for(j in c(10, 35, 48,58,67,75,82,88,94,100)) {
+  
+  files.take <- files[which(str_detect(files, paste0("abm_size_",j,"_")))]
+  
+  r_sum <- NULL
+  for(i in files.take){
+    rast.used <- rast(i)
+    
+    if(is.null(r_sum)) {
+      r_sum <- sum(rast.used)
+    } else {
+      r_sum <- r_sum + sum(rast.used)
+    }
+  }
+  
+  kernel <- r_sum/sum(values(r_sum))
+  
+  writeRaster(kernel, "output_abm_size_total/abm_size_total_",j,".tif", overwrite=T)
+  
+  print(j)
+}
+
 require(amt)
 ssf.coef <- rep(list(NA), 500)
 ssf.est <- for(i in 1:500){

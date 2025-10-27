@@ -10,9 +10,141 @@ raster_dir <- "/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_
 raster_files <- list.files(raster_dir, pattern = "\\.tif$", full.names = TRUE)
 length(raster_files)
 
-setwd("/gpfs/gibbs/project/ezenwa/wr254/movement/abm_compiled")
 # Directory with 10,000 rasters (each 10 layers)
 
+d <- read.in.stack("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_nonfocal/2/")
+
+
+merge.abm.case <- function(x) {
+  pb = txtProgressBar(min = 0, max = length(x)*10, initial = 0, style = 3) 
+  
+  r_sum <- NULL
+  count <- 0
+  for (f in x) {
+    r <- rast(f)               # load the raster (10 layers)
+    r_sum <- if (is.null(r_sum)) {
+      app(r, sum)              # sum across layers for the first file
+    } else {
+      r_sum + app(r, sum)      # add layer-sum from each file
+    }
+    count <- count + nlyr(r)   # increment total layer count
+    # print(count)
+    # rm(r); gc()
+    setTxtProgressBar(pb,count)
+  }
+  
+  # Compute mean across all pixels and layers
+  r_mean <- r_sum / count
+  close(pb)
+  return(r_mean)
+}
+
+
+setwd("/gpfs/gibbs/project/ezenwa/wr254/movement/abm_compiled")
+files <- list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/buffalo/1/", pattern = "\\.tif$", full.names = TRUE)
+
+
+final_red_1 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/red/1/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_red_1, "final_red_1.tif", overwrite=T)
+
+
+
+final_roe_1 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/roe/1/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_roe_1, "final_roe_1.tif", overwrite=T)
+
+final_roe_2 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/roe/2/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_roe_2, "final_roe_2.tif", overwrite=T)
+
+final_roe_3 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/roe/3/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_roe_3, "final_roe_3.tif", overwrite=T)
+
+final_roe_4 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/roe/4/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_roe_4, "final_roe_4.tif", overwrite=T)
+
+final_roe_5 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/roe/5/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_roe_5, "final_roe_5.tif", overwrite=T)
+
+
+
+final_ff_1 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_focal/1/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_ff_1, "final_ff_1.tif", overwrite=T)
+
+final_ff_2 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_focal/2/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_ff_2, "final_ff_2.tif", overwrite=T)
+
+final_ff_3 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_focal/3/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_ff_3, "final_ff_3.tif", overwrite=T)
+
+final_ff_4 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_focal/4/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_ff_4, "final_ff_4.tif", overwrite=T)
+
+final_ff_5 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_focal/5/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_ff_5, "final_ff_5.tif", overwrite=T)
+
+final_ff_6 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_focal/6/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_ff_6, "final_ff_6.tif", overwrite=T)
+
+final_ff_7 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_focal/7/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_ff_7, "final_ff_7.tif", overwrite=T)
+
+
+
+final_fnf_1 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_nonfocal/1/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_fnf_1, "final_fnf_1.tif", overwrite=T)
+
+final_fnf_2 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_nonfocal/2/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_fnf_2, "final_fnf_2.tif", overwrite=T)
+
+final_fnf_3 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_nonfocal/3/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_fnf_3, "final_fnf_3.tif", overwrite=T)
+
+final_fnf_4 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_nonfocal/4/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_fnf_4, "final_fnf_4.tif", overwrite=T)
+
+final_fnf_5 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_nonfocal/5/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_fnf_5, "final_fnf_5.tif", overwrite=T)
+
+final_fnf_6 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_nonfocal/6/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_fnf_6, "final_fnf_6.tif", overwrite=T)
+
+final_fnf_7 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_nonfocal/7/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_fnf_7, "final_fnf_7.tif", overwrite=T)
+
+
+
+final_sum_b1 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/buffalo/1/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_sum_b1, "final_sum_b1.tif", overwrite=T)
+
+final_sum_b2 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/buffalo/2/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_sum_b2, "final_sum_b2.tif", overwrite=T)
+
+final_sum_b3 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/buffalo/3/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_sum_b3, "final_sum_b3.tif", overwrite=T)
+
+final_sum_b4 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/buffalo/4/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_sum_b4, "final_sum_b4.tif", overwrite=T)
+
+final_sum_b5 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/buffalo/5/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_sum_b5, "final_sum_b5.tif", overwrite=T)
+
+final_sum_b6 <- merge.abm.case(list.files("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/buffalo/6/", pattern = "\\.tif$", full.names = TRUE))
+writeRaster(final_sum_b6, "final_sum_b6.tif", overwrite=T)
+
+
+
+
+
+
+
+read.in.stack <- function(dir) {
+  take <- list.files(dir)
+  take <- take[which(!str_detect(take, ".tif."))]
+  stack <- rast(lapply(take, function(x){
+    rast(paste0(dir,x))
+  }))
+  
+  return(stack)
+}
 
 store.convergence <- matrix(NA, nrow = 10000, ncol = c(1+5+7+7+6))
 
@@ -27,27 +159,27 @@ setwd("/gpfs/gibbs/project/ezenwa/wr254/movement")
 for(i in 1:26){
   if(i == 1) {
     raster_dir <- paste0("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/red/",i,"/")
-    rast100k <- rast(paste0("abm_compiled/final_red_",i,".tif"))/1E5
+    rast100k <- rast(paste0("abm_compiled/final_red_",i,".tif"))
   }
   
   if(i %in% 2:6) {
     raster_dir <- paste0("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/roe/",i-1,"/")
-    rast100k <- rast(paste0("abm_compiled/final_roe_",i-1,".tif"))/1E5
+    rast100k <- rast(paste0("abm_compiled/final_roe_",i-1,".tif"))
   }
   
   if(i %in% 7:13) {
     raster_dir <- paste0("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_focal/",i-6,"/")
-    rast100k <- rast(paste0("abm_compiled/final_ff_",i-6,".tif"))/1E5
+    rast100k <- rast(paste0("abm_compiled/final_ff_",i-6,".tif"))
   }
   
   if(i %in% 14:20) {
     raster_dir <- paste0("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/fisher_nonfocal/",i-13,"/")
-    rast100k <- rast(paste0("abm_compiled/final_fnf_",i-13,".tif"))/1E5
+    rast100k <- rast(paste0("abm_compiled/final_fnf_",i-13,".tif"))
   }
   
   if(i %in% 21:26) {
     raster_dir <- paste0("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_case/buffalo/",i-20,"/")
-    rast100k <- rast(paste0("abm_compiled/final_sum_b",i-20,".tif"))/1E5
+    rast100k <- rast(paste0("abm_compiled/final_sum_b",i-20,".tif"))
   }
   
   raster_files <- dir_ls(raster_dir, glob = "*.tif")
@@ -83,11 +215,13 @@ colnames(store.convergence.sim) <- c(1:500)
 
 
 setwd("/gpfs/gibbs/project/ezenwa/wr254/movement")
-for(i in 1:500){
+for(i in 379:500){
   raster_dir <- paste0("/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm/",i,"/")
-  rast.used <- read.RDS(paste0("abm_rasters/used_",i,".rds"))
+  rast.used <- readRDS(paste0("output_rasters/used_",i,".rds"))
   
-  rast.used <- rast.used/sum(values(rast.used))
+  rast.used$n <- rast.used$n/sum(rast.used$n)
+  rast.used <- rast(rast.used[which(!is.na(rast.used$y)),], type = "xyz")
+  values(rast.used$n) <- ifelse(is.na(values(rast.used$n)), 0, values(rast.used$n))
   
   raster_files <- dir_ls(raster_dir, glob = "*.tif")
   
@@ -95,7 +229,7 @@ for(i in 1:500){
   r0 <- rast(raster_files[1])
   r_sum <- sum(r0)  # sum over layers in first file
   
-  store.convergence.sim[1, i] <- sum(sqrt(values((r_sum/sum(values(r_sum))))*values(rast.used)))
+  store.convergence.sim[1, i] <- sum(sqrt(values((r_sum/sum(values(r_sum))))*values(rast.used$n)))
   
   length.through <- length(raster_files)
   # Loop through remaining files and incrementally add to output
@@ -105,7 +239,7 @@ for(i in 1:500){
     r <- sum(r)  # sum layers within the file
     r_sum <- r_sum + r
     
-    store.convergence.sim[f, i] <- sum(sqrt(values((r_sum/sum(values(r_sum))))*values(rast.used)))
+    store.convergence.sim[f, i] <- sum(sqrt(values((r_sum/sum(values(r_sum))))*values(rast.used$n)))
     setTxtProgressBar(pb,f)
   }
   close(pb)
@@ -125,95 +259,15 @@ as.data.frame(store.convergence.sim) %>%
   scale_color_discrete(guide = "none") +
   scale_x_log10()
 
+store.convergence.sim <- readRDS("old/store.convergence.simulations.RDS")
 
-
-
-
-###########
-
-library(terra)
-
-source('base_fxns.R')
-setwd("~/project/movement")
-
-raster_dir <- "/gpfs/gibbs/project/ezenwa/wr254/movement/output_abm_example/"
-raster_files <- list.files(raster_dir, full.names = TRUE)
-length(raster_files)
-
-example.steps <- lapply(raster_files, readRDS)
-
-
-example.steps <- lapply(1:101, function(x) {
-  example.steps[[x]]$iteration <- x
-  example.steps[[x]]$step <- 1:nrow(example.steps[[1]])
-  example.steps[[x]]
-})
-
-bound <- rbindlist(example.steps)
-
-bound
-
-
-readRDS(raster_files[[2]]) %>% data.frame() %>% 
-  mutate(t = 1:n()) %>% 
-  ggplot(aes(x = x_, y = y_, color = t)) +
+as.data.frame(store.convergence.sim) %>% 
+  mutate(iter = (1:20)*250) %>% 
+  pivot_longer(colnames(store.convergence.sim)) %>% 
+  ggplot(aes(x= iter, y = value, color = name)) +
   geom_path() +
-  scale_color_viridis_c()
-
-
-
-
-
-
-library(terra)
-
-source('$SCRIPT')
-setwd("~/project/movement")
-total <- readRDS("abm.example.RDS")
-
-print("setting conditions")
-
-spatial.data <- rast(total[[3]]) # rasters
-model <- total[[2]] # movement model (second list item is the model number)
-ssf.dat <- total[[1]] %>% mutate(V1 = x1_, V2 = x2_) %>% dplyr::select('V1','V2') # mock ssf data to init simulation
-
-sizes <- round(sqrt(seq(10*10,100*100, length.out = 10)))
-size.choice <- (1 %/% 1000) + 1
-
-spatial.data <- crop(spatial.data, c(0,sizes[size.choice],0,sizes[size.choice]))
-
-# Create a temporary multi-layer stack
-stack_list <- list()
-
-for (INDEX in 11:20) {
-  cat("Processing index:", INDEX, "\n")
-  
-  set.seed(INDEX)
-  
-  ssf.dat$V1 <- ssf.dat$x1_
-  ssf.dat$V2 <- ssf.dat$y1_
-  ssf.dat$t <- ssf.dat$t1_
-  
-  abm.prob.raster <- try(rast(run_abm_2_convergence(model, spatial.data, ssf.dat, iterator = INDEX)), silent = TRUE)
-  
-  stack_list[[length(stack_list) + 1]] <- (abm.prob.raster)
-}
-
-# === Final Raster Stack ===
-if (length(stack_list) > 0) {
-  output_stack <- rast(stack_list)
-  
-  # Prepare output directory and save
-  scenario_dir <- file.path('$OUTDIR', index.scenario[['scenarios']])
-  if (!dir.exists(scenario_dir)) dir.create(scenario_dir, recursive = TRUE)
-  
-  # Write to disk with LZW compression
-  output_file <- file.path(scenario_dir, paste0('abm_size_',sizes[size.choice],'_', $SLURM_ARRAY_TASK_ID, '.tif'))
-  writeRaster(output_stack, output_file, overwrite = TRUE)
-  cat("Saved:", output_file, "\n")
-} else {
-  cat("No valid rasters to write for this batch.\n")
-}
+  scale_color_discrete(guide = "none") +
+  scale_x_log10()
 
 
 
